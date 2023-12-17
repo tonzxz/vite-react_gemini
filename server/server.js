@@ -7,29 +7,35 @@ app.use(cors());
 app.use(express.json());
 
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+const chat = model.startChat({
+  history: [],
+})
 
 app.post("/generate", async (req, res) => {
-  console.log("Request received for /generate");
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  console.log("Request fuck for /generate");
+  
 
   const { prompt } = req.body;
 
   console.log("Prompt:", prompt);
 
   try {
-    const result = await model.generateContentStream([prompt]);
+    const result = await model.sendMessageStream([prompt]);
 
     let text = "";
 
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();
       text += chunkText;
+      res.write(chunkText || "");
     }
-
-    res.json({ generatedText: text });
+    console.log(text);
+    res.end();
   } catch (error) {
-    console.error("Error generating content:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.write("Please mam jayrah");
+    res.end();
+    console.error("Error pota generating content:", error);
   }
 });
 

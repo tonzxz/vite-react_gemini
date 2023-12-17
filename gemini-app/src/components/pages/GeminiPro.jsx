@@ -26,27 +26,37 @@ function GeminiPro() {
   const handleGeneratedText = async () => {
     try {
       setLoading(true);
-
+      setGeneratedText("");
       const response = await fetch("http://localhost:3000/generate", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          Accept: "application/json, text/plain, */*",
+            "Content-Type": "application/json",
         },
         body: JSON.stringify({ prompt: userPrompt }),
       });
+      setLoading(false);
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
 
-      const data = await response.json();
-
+      const data = await response.body.getReader();
+      const decoder = new TextDecoder();
+      while(true){
+        const  {value , isDone} = await data.read();
+        if(value == undefined){
+          break;
+        }
+        const chunk = decoder.decode(value, {stream : true});
+        const text = String(chunk).replaceAll("**", "");
+        setGeneratedText(generatedText => generatedText + text);
+      }
       // Set the generated text instantly without any delay
-      setGeneratedText(data.generatedText);
     } catch (error) {
       console.error("Error generating text:", error);
     } finally {
-      setLoading(false);
+      
     }
   };
 
@@ -68,8 +78,8 @@ function GeminiPro() {
     <p className="text-6xl bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500 text-center pb-14"> BFF ni Wa</p>
     </div>
     {/* Content section */}
-   <div className="text-center px-24 py-12 bg-zinc rounded-3xl">
-      <h3>{!loading && <code>{generatedText}</code>}</h3>
+   <div className="text-left text-lg px-24 py-1 bg-zinc rounded-3xl">
+      <h3>{!loading && <pre className="text-wrap">{generatedText}</pre>}</h3>
     </div>
   
     {/* Input fixed at the bottom */}
