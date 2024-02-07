@@ -1,9 +1,15 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+
+  margin: 0px auto;
+  
   text-align: center;
+  
 }
+
+::-webkit-scrollbar {
+  display: none;
+}
+
 
 .logo {
   height: 6em;
@@ -44,3 +50,4 @@
 pre {
   white-space: pre-wrap;   
 }
+
